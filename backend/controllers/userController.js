@@ -1,6 +1,7 @@
 import { genrateToken } from '../config/jwtTokens.js';
-import { asyncHandler } from '../middlewares/asyncErrorHandler.js'
+import { asyncHandler } from '../utils/asyncErrorHandler.js'
 import User from '../models/userModel.js'
+import validateId from '../utils/validateMDB_Id.js';
 
 
 //Register User
@@ -27,50 +28,52 @@ export const registerUser = asyncHandler(async (req, res) => {
 
 
 //Login User
-export const loginUser = asyncHandler(async (req,res) => {
-    const {email,password} = req.body;
+export const loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
     //checking if the user found or not
-    const findUser = await User.findOne({email})
-    if(findUser && await findUser.isPasswordMatched(password)){
-      res.json({
-        _id:findUser?._id,
-        name:findUser?.name,
-        username:findUser?.username,
-        email:findUser?.email,
-        token:genrateToken(findUser?._id)
-      })
-    }else{
+    const findUser = await User.findOne({ email })
+    if (findUser && await findUser.isPasswordMatched(password)) {
+        res.json({
+            _id: findUser?._id,
+            name: findUser?.name,
+            username: findUser?.username,
+            email: findUser?.email,
+            token: genrateToken(findUser?._id)
+        })
+    } else {
         throw new Error("Invalid credentials");
     }
 })
 
 
 //get all users
-export const getAllUsers = asyncHandler(async (req,res) => {
+export const getAllUsers = asyncHandler(async (req, res) => {
     const allUsers = await User.find();
-    res.json({allUsers})
+    res.json({ allUsers })
 })
 
 
 //get a single user
-export const getSingleUser = asyncHandler(async (req,res) => {
-    const {id} = req.params;
+export const getSingleUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateId(id)
     try {
         const user = await User.findById(id)
-        res.json({user})
+        res.json({ user })
     } catch (error) {
         throw new Error('User not found')
     }
-    
+
 })
 
 
 //Delete a user
-export const deleteAUser = asyncHandler(async (req,res) => {
-    const {id} = req.params;
+export const deleteAUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateId(id)
     try {
         const deleteUser = await User.findByIdAndDelete(id)
-        res.json({deleteUser})
+        res.json({ deleteUser })
     } catch (error) {
         throw new Error("User not found")
     }
@@ -78,18 +81,19 @@ export const deleteAUser = asyncHandler(async (req,res) => {
 
 
 //Update a User
-export const updateUser = asyncHandler(async (req,res) => {
-    const {id} = req.user;
+export const updateUser = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    validateId(id)
     try {
-        const updatedUser = await User.findByIdAndUpdate(id,{
-            name:req?.body?.name,
-            username:req?.body?.username,
-            email:req?.body?.email,
-            password:req?.body?.password
-        },{
-            new:true
+        const updatedUser = await User.findByIdAndUpdate(id, {
+            name: req?.body?.name,
+            username: req?.body?.username,
+            email: req?.body?.email,
+            password: req?.body?.password
+        }, {
+            new: true
         })
-        res.json({updatedUser})
+        res.json({ updatedUser })
     } catch (error) {
         throw new Error('user not found')
     }
@@ -97,18 +101,21 @@ export const updateUser = asyncHandler(async (req,res) => {
 
 
 //Block and UnBlock User Through Admin
-export const blockUser = asyncHandler(async(req,res) => {
-    const {id} = req.params;
+
+//Block the User
+export const blockUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateId(id)
     try {
-        const block = await User.findByIdAndUpdate(id,{
-            isBlock:true
+        const block = await User.findByIdAndUpdate({ id }, {
+            isBlock: true
         },
-        {
-            new:true
-        }
+            {
+                new: true
+            }
         )
         res.json({
-            message:"User is Blocked"
+            message: "User is Blocked"
         })
     } catch (error) {
         throw new Error(error)
@@ -116,18 +123,21 @@ export const blockUser = asyncHandler(async(req,res) => {
 })
 
 
-export const unBlockUser = asyncHandler(async(req,res) => {
-    const {id} = req.params;
+
+//UnBlock the  User
+export const unBlockUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateId(id)
     try {
-        const unBlock = await User.findByIdAndUpdate(id,{
-            isBlock:false
+        const unBlock = await User.findByIdAndUpdate(id, {
+            isBlock: false
         },
-        {
-            new:true
-        }
+            {
+                new: true
+            }
         )
         res.json({
-            message:"User is UnBlocked"
+            message: "User is UnBlocked"
         })
     } catch (error) {
         throw new Error(error)

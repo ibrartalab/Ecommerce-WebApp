@@ -19,8 +19,8 @@ const userSchema = new Schema(
       type: Array,
       default: []
     },
-    address: [{ type: mongoose.SchemaTypes.ObjectId, ref: "Address" }],
-    whislist: [{ type: mongoose.SchemaTypes.ObjectId, ref: "Product" }]
+    address: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
+    whislist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }]
   },
   { timestamps: true }
 );
